@@ -1,25 +1,22 @@
 import { useEffect, useState } from "react";
 import { FlatList, Text, Image, View, Button } from "react-native";
 import axios from "axios";
-import { Provider, useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { increment } from "@/src/redux/counterSlice";
-import { RootState, store } from "@/src/redux/store";
-import { useSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 
-
-
-interface Item {
-  id: number;
-  title: string;
-  image: string;
-  price: number;
-}
+const item = {
+  id: 1,
+  title: "",
+  image: "",
+  price: 100,
+};
 
 export default function Home() {
-  const [items, setItems] = useState<Item[]>([]);
-  const {username}=useSearchParams();
+  const [items, setItems] = useState([]); // Removed Item[]
+  const { username } = useGlobalSearchParams();
   const dispatch = useDispatch();
-  const clickCount = useSelector((state: RootState) => state.counter.value);
+  const clickCount = useSelector((state) => state.counter.value); // Removed RootState
 
   useEffect(() => {
     axios.get("https://fakestoreapi.com/products").then((response) => {
@@ -27,7 +24,7 @@ export default function Home() {
     });
   }, []);
 
-  const renderItem = ({ item }: { item: Item }) => (
+  const renderItem = ({ item }) => (
     <View style={{ margin: 10, borderWidth: 1, padding: 10 }}>
       <Image source={{ uri: item.image }} style={{ height: 100, width: 100 }} />
       <Text>{item.title}</Text>
@@ -37,7 +34,6 @@ export default function Home() {
   );
 
   return (
-
     <View style={{ flex: 1 }}>
       <FlatList
         data={items}
@@ -49,6 +45,5 @@ export default function Home() {
         <Text>Welcome, {username}!</Text>
       </View>
     </View>
-   
   );
 }

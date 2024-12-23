@@ -2,16 +2,11 @@ import { useRouter } from "expo-router";
 import { useForm, Controller } from "react-hook-form";
 import { View, TextInput, Button, Text } from "react-native";
 
-interface LoginForm {
-  username: string;
-  password: string;
-}
-
 export default function Login() {
-  const { control, handleSubmit } = useForm<LoginForm>();
+  const { control, handleSubmit } = useForm(); 
   const router = useRouter();
 
-  const onSubmit = (data: LoginForm) => {
+  const onSubmit = (data) => {
     router.push({
       pathname: "/home",
       params: { username: data.username },
@@ -20,7 +15,7 @@ export default function Login() {
 
   return (
     <View>
-      <Text>Login</Text>
+      <Text style={{ marginLeft: 10 }}>Login</Text>
       <Controller
         name="username"
         control={control}
@@ -30,7 +25,7 @@ export default function Login() {
             placeholder="Username"
             value={value}
             onChangeText={onChange}
-            style={{ borderWidth: 1, marginBottom: 10 }}
+            style={{ borderWidth: 1, margin: 10 }}
           />
         )}
       />
@@ -44,7 +39,7 @@ export default function Login() {
             value={value}
             onChangeText={onChange}
             secureTextEntry
-            style={{ borderWidth: 1, marginBottom: 10 }}
+            style={{ borderWidth: 1, margin: 10 }}
           />
         )}
       />
