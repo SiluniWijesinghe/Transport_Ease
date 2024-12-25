@@ -2,7 +2,7 @@ import React from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { setUser } from "@/src/redux/userSlice";
+import { setUser } from "../src/redux/userSlice";
 import { useRouter } from "expo-router";
 
 export default function RegistrationForm() {
@@ -14,6 +14,7 @@ export default function RegistrationForm() {
     dispatch(setUser(data)); 
     router.push("/home"); 
 
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Register</Text>
@@ -124,4 +125,4 @@ const styles = StyleSheet.create({
     color: "red",
     marginBottom: 10,
   },
-})}
+})

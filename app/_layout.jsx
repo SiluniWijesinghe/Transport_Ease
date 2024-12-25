@@ -1,6 +1,9 @@
-import { store } from "@/src/redux/store";
+import { store } from "../src/redux/store";
 import { Stack } from "expo-router";
 import { Provider } from "react-redux";
+import Login from "./login";
+import RegistrationForm from "./registrationForm";
+import Home from "./home";
 
 export default function RootLayout() {
   return (
@@ -15,11 +18,7 @@ export default function RootLayout() {
             fontWeight: "bold",
           },
         }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="login" />
-        <Stack.Screen name="home" />
-      </Stack>
+      ></Stack>
     </Provider>
   );
 }

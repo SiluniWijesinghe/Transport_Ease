@@ -1,9 +1,20 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { View, TextInput, Button, Text } from "react-native";
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  Touchable,
+  TouchableOpacity,
+} from "react-native";
 
 export default function Login() {
-  const { control, handleSubmit } = useForm(); 
+  const [errors, setErrors] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { control, handleSubmit } = useForm();
   const router = useRouter();
 
   const onSubmit = (data) => {
@@ -19,8 +30,8 @@ export default function Login() {
       <Controller
         name="username"
         control={control}
-        rules={{ required: "Username is required" }}
-        render={({ field: { onChange, value } }) => (
+        rules={{ required: true }}
+        render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
             placeholder="Username"
             value={value}
@@ -29,6 +40,7 @@ export default function Login() {
           />
         )}
       />
+
       <Controller
         name="password"
         control={control}
@@ -44,6 +56,17 @@ export default function Login() {
         )}
       />
       <Button title="Login" onPress={handleSubmit(onSubmit)} />
+      <TouchableOpacity
+        onPress={() => {
+          router.push({
+            pathname: "/registrationForm",
+          });
+        }}
+      >
+        <Text style={{ fontSize: 12, marginLeft: 45 }}>
+          Don't have an account? Register Here
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
