@@ -50,11 +50,8 @@ export default function Home() {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity
+    <View
       style={styles.card}
-      onPress={() => {
-        handleItemPress();
-      }}
     >
       <Text style={styles.title}>{item.relatedParks[0].fullName}</Text>
       <Image
@@ -81,12 +78,11 @@ export default function Home() {
       <TouchableOpacity style={styles.clickMeButton} onPress={handleItemPress}>
         <Text style={styles.clickMeText}>Click Me</Text>
       </TouchableOpacity>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}> Places you can visit</Text>
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
       ) : (
@@ -151,13 +147,14 @@ const styles = StyleSheet.create({
   },
   clickMeButton: {
     marginTop: 10,
-    backgroundColor: "#FF5722",
+    backgroundColor: "#8B8C89",
     padding: 5,
     borderRadius: 5,
     alignItems: "center",
+    width:"60%"
   },
   clickMeText: {
-    color: "#fff",
+    color: "black",
     fontSize: 14,
   },
   loadingText: {

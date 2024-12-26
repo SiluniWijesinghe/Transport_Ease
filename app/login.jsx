@@ -6,8 +6,8 @@ import {
   TextInput,
   Button,
   Text,
-  Touchable,
   TouchableOpacity,
+  StyleSheet,
 } from "react-native";
 
 export default function Login() {
@@ -25,8 +25,8 @@ export default function Login() {
   };
 
   return (
-    <View>
-      <Text style={{ marginLeft: 10 }}>Login</Text>
+    <View style={styles.page}>
+      <Text style={styles.heading}>Welcome to Transport Ease !</Text>
       <Controller
         name="username"
         control={control}
@@ -36,11 +36,10 @@ export default function Login() {
             placeholder="Username"
             value={value}
             onChangeText={onChange}
-            style={{ borderWidth: 1, margin: 10 }}
+            style={styles.input}
           />
         )}
       />
-
       <Controller
         name="password"
         control={control}
@@ -51,11 +50,13 @@ export default function Login() {
             value={value}
             onChangeText={onChange}
             secureTextEntry
-            style={{ borderWidth: 1, margin: 10 }}
+            style={styles.input}
           />
         )}
       />
-      <Button title="Login" onPress={handleSubmit(onSubmit)} />
+      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
           router.push({
@@ -63,10 +64,50 @@ export default function Login() {
           });
         }}
       >
-        <Text style={{ fontSize: 12, marginLeft: 45 }}>
+        <Text style={styles.registerText}>
           Don't have an account? Register Here
         </Text>
       </TouchableOpacity>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+    backgroundColor:"#fff",
+    justifyContent: "center", 
+    alignItems: "center",   
+    padding: 10,
+  },
+  heading: {
+    textAlign: "center",
+    fontSize: 20,
+    marginBottom:20
+  },
+  input: {
+    width: "80%", 
+    borderColor:"#ccc",
+    borderWidth: 1,
+    padding: 10,
+    margin: 10,
+    borderRadius: 5,
+  },
+  button: {
+    backgroundColor: "#274C77",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    width: "80%"
+  },
+  buttonText: {
+
+    color: "white",
+    fontSize: 16,
+    fontWeight:"bold"
+  },
+  registerText: {
+    fontSize: 12,
+    marginTop: 20,
+  },
+});

@@ -1,5 +1,5 @@
 import { store } from "../src/redux/store";
-import { Stack } from "expo-router";
+import { Slot, Stack } from "expo-router";
 import { Provider } from "react-redux";
 import Login from "./login";
 import RegistrationForm from "./registrationForm";
@@ -11,14 +11,34 @@ export default function RootLayout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: "#195583",
+            backgroundColor: "#E7ECEF",
           },
-          headerTintColor: "#fff",
+          headerTintColor: "black",
           headerTitleStyle: {
             fontWeight: "bold",
           },
         }}
-      ></Stack>
+      >
+        <Stack.Screen
+          name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="registrationForm"
+          options={{
+            title: "User Registration",
+          }}
+        />
+        <Stack.Screen
+          name="home"
+          options={{
+            title: "Discover Places",
+            backgroundColor: "#fff",
+          }}
+        />
+      </Stack>
     </Provider>
   );
 }

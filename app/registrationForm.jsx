@@ -1,39 +1,63 @@
 import React from "react";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { setUser } from "../src/redux/userSlice";
 import { useRouter } from "expo-router";
 
 export default function RegistrationForm() {
-  const { control, handleSubmit, formState: { errors } } = useForm();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const dispatch = useDispatch();
   const router = useRouter();
 
   const onSubmit = (data) => {
-    dispatch(setUser(data)); 
-    router.push("/home"); 
-
-  }
+    dispatch(setUser(data));
+    router.push("/home");
+  };
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Register</Text>
-      
       <Controller
-        name="fullName"
+        name="FirstName"
         control={control}
-        rules={{ required: "Full name is required" }}
+        rules={{ required: "First name is required" }}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            placeholder="Full Name"
+            placeholder="First Name"
             value={value}
             onChangeText={onChange}
             style={styles.input}
           />
         )}
       />
-      {errors.fullName && <Text style={styles.error}>{errors.fullName.message}</Text>}
-
+      {errors.fullName && (
+        <Text style={styles.error}>*{errors.fullName.message}</Text>
+      )}
+       <Controller
+        name="LastName"
+        control={control}
+        rules={{ required: "Last name is required" }}
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            placeholder="Last Name"
+            value={value}
+            onChangeText={onChange}
+            style={styles.input}
+          />
+        )}
+      />
+      {errors.fullName && (
+        <Text style={styles.error}>*{errors.fullName.message}</Text>
+      )}
       <Controller
         name="email"
         control={control}
@@ -54,8 +78,7 @@ export default function RegistrationForm() {
           />
         )}
       />
-      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
-
+      {errors.email && <Text style={styles.error}>*{errors.email.message}</Text>}
       <Controller
         name="password"
         control={control}
@@ -76,14 +99,16 @@ export default function RegistrationForm() {
           />
         )}
       />
-      {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
-
+      {errors.password && (
+        <Text style={styles.error}>*{errors.password.message}</Text>
+      )}
       <Controller
         name="confirmPassword"
         control={control}
         rules={{
           required: "Please confirm your password",
-          validate: (value) => value === control.getValues("password") || "Passwords do not match",
+          validate: (value) =>
+            value === control.getValues("password") || "Passwords do not match",
         }}
         render={({ field: { onChange, value } }) => (
           <TextInput
@@ -95,18 +120,24 @@ export default function RegistrationForm() {
           />
         )}
       />
-      {errors.confirmPassword && <Text style={styles.error}>{errors.confirmPassword.message}</Text>}
-
-      <Button title="Register" onPress={handleSubmit(onSubmit)} />
+      {errors.confirmPassword && (
+        <Text style={styles.error}>*{errors.confirmPassword.message}</Text>
+      )}
+      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
+        <Text style={styles.buttonText}>Register</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: "#fff",
     flex: 1,
+    justifyContent: "top",
+    backgroundColor: "#fff",
+    alignItems: "center",
+    padding:10
+   
   },
   heading: {
     fontSize: 24,
@@ -115,14 +146,29 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    borderWidth: 1,
+    width: "90%",
     borderColor: "#ccc",
+    borderWidth: 1,
+    padding: 10,
+    margin: 10,
+    borderRadius: 5,
+  },
+  button: {
+    backgroundColor: "#274C77",
     padding: 10,
     borderRadius: 5,
-    marginBottom: 10,
+    alignItems: "center",
+    width: "full",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   error: {
+    fontSize:10,
+   alignItems:"left",
     color: "red",
-    marginBottom: 10,
+    marginBottom: 5,
   },
-})
+});
