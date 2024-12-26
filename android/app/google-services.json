@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1040446881151",
+    "project_id": "auth-bd74c",
+    "storage_bucket": "auth-bd74c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1040446881151:android:768ddcec794a6579bf6e4a",
+        "android_client_info": {
+          "package_name": "com.anonymous.transportEase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5EWOo3NPBCJt25zW0BD_PUUETLvChwkw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

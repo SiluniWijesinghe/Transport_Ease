@@ -1,6 +1,5 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
 import {
   View,
   TextInput,
@@ -8,60 +7,63 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
+  Alert
 } from "react-native";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Login() {
-  const [errors, setErrors] = useState();
+  const [errors, setErrors] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { control, handleSubmit } = useForm();
   const router = useRouter();
+  const auth = getAuth();
 
-  const onSubmit = (data) => {
-    router.push({
-      pathname: "/home",
-      params: { username: data.username },
-    });
+  const signIn = async () => {
+    if (!email || !password) {
+      setErrors("Both email and password are required.");
+      return;
+    }
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      router.push({ pathname: "/home" });
+      dispatch(setUser(formData));
+      Alert.alert("Success", "You have signed in successfully!", [
+        { text: "OK", onPress: () => router.push("/home") },
+      ]);
+    } catch (error) {
+      setErrors(error.message);
+    }
   };
 
   return (
     <View style={styles.page}>
-      <Text style={styles.heading}>Welcome to Transport Ease !</Text>
-      <Controller
-        name="username"
-        control={control}
-        rules={{ required: true }}
-        render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            placeholder="Username"
-            value={value}
-            onChangeText={onChange}
-            style={styles.input}
-          />
-        )}
+      <Text style={styles.heading}>Welcome to Transport Ease!</Text>
+      <TextInput
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
       />
-      <Controller
-        name="password"
-        control={control}
-        rules={{ required: "Password is required" }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="Password"
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry
-            style={styles.input}
-          />
-        )}
+      <TextInput
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
       />
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
+      {errors && <Text style={styles.error}>{errors}</Text>}
+      <TouchableOpacity style={styles.button} onPress={signIn}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
-          router.push({
-            pathname: "/registrationForm",
-          });
+          router.push({ pathname: "/registrationForm" });
         }}
       >
         <Text style={styles.registerText}>
@@ -75,19 +77,19 @@ export default function Login() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor:"#fff",
-    justifyContent: "center", 
-    alignItems: "center",   
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 10,
   },
   heading: {
     textAlign: "center",
     fontSize: 20,
-    marginBottom:20
+    marginBottom: 20,
   },
   input: {
-    width: "80%", 
-    borderColor:"#ccc",
+    width: "80%",
+    borderColor: "#ccc",
     borderWidth: 1,
     padding: 10,
     margin: 10,
@@ -98,16 +100,20 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
-    width: "80%"
+    width: "80%",
   },
   buttonText: {
-
     color: "white",
     fontSize: 16,
-    fontWeight:"bold"
+    fontWeight: "bold",
   },
   registerText: {
     fontSize: 12,
     marginTop: 20,
+  },
+  error: {
+    color: "red",
+    fontSize: 14,
+    marginBottom: 10,
   },
 });

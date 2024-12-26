@@ -1,131 +1,143 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   TextInput,
   Text,
   StyleSheet,
-  TouchableOpacity,
+  Button,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
-import { useForm, Controller } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { setUser } from "../src/redux/userSlice";
 import { useRouter } from "expo-router";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function RegistrationForm() {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
+  const [formData, setFormData] = useState({
+    FirstName: "",
+    LastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const router = useRouter();
+  const auth = getAuth();
 
-  const onSubmit = (data) => {
-    dispatch(setUser(data));
-    router.push("/home");
+  const handleChange = (name, value) => {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
+
+  const validate = () => {
+    const newErrors = {};
+
+    // Validation
+    if (!formData.FirstName) newErrors.FirstName = "First name is required";
+    if (!formData.LastName) newErrors.LastName = "Last name is required";
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long";
+    }
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const onSubmit = async () => {
+    if (validate()) {
+      setLoading(true);
+      const { email, password } = formData;
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        const user = userCredential.user;
+        dispatch(setUser(formData));
+        Alert.alert("Success", "You have registered successfully!", [
+          { text: "OK", onPress: () => router.push("/login") },
+        ]);
+      } catch (error) {
+        console.error("Registration error:", error.code, error.message);
+      } finally {
+        setLoading(false); 
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Controller
-        name="FirstName"
-        control={control}
-        rules={{ required: "First name is required" }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="First Name"
-            value={value}
-            onChangeText={onChange}
-            style={styles.input}
-          />
-        )}
+      <TextInput
+        placeholder="First Name"
+        value={formData.FirstName}
+        onChangeText={(value) => handleChange("FirstName", value)}
+        style={styles.input}
       />
-      {errors.fullName && (
-        <Text style={styles.error}>*{errors.fullName.message}</Text>
+      {errors.FirstName && (
+        <Text style={styles.error}>*{errors.FirstName}</Text>
       )}
-       <Controller
-        name="LastName"
-        control={control}
-        rules={{ required: "Last name is required" }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="Last Name"
-            value={value}
-            onChangeText={onChange}
-            style={styles.input}
-          />
-        )}
+
+      <TextInput
+        placeholder="Last Name"
+        value={formData.LastName}
+        onChangeText={(value) => handleChange("LastName", value)}
+        style={styles.input}
       />
-      {errors.fullName && (
-        <Text style={styles.error}>*{errors.fullName.message}</Text>
-      )}
-      <Controller
-        name="email"
-        control={control}
-        rules={{
-          required: "Email is required",
-          pattern: {
-            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-            message: "Invalid email format",
-          },
-        }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="Email"
-            value={value}
-            onChangeText={onChange}
-            keyboardType="email-address"
-            style={styles.input}
-          />
-        )}
+      {errors.LastName && <Text style={styles.error}>*{errors.LastName}</Text>}
+
+      <TextInput
+        placeholder="Email"
+        value={formData.email}
+        onChangeText={(value) => handleChange("email", value)}
+        keyboardType="email-address"
+        style={styles.input}
       />
-      {errors.email && <Text style={styles.error}>*{errors.email.message}</Text>}
-      <Controller
-        name="password"
-        control={control}
-        rules={{
-          required: "Password is required",
-          minLength: {
-            value: 6,
-            message: "Password must be at least 6 characters long",
-          },
-        }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="Password"
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry
-            style={styles.input}
-          />
-        )}
+      {errors.email && <Text style={styles.error}>*{errors.email}</Text>}
+
+      <TextInput
+        placeholder="Password"
+        value={formData.password}
+        onChangeText={(value) => handleChange("password", value)}
+        secureTextEntry
+        style={styles.input}
       />
-      {errors.password && (
-        <Text style={styles.error}>*{errors.password.message}</Text>
-      )}
-      <Controller
-        name="confirmPassword"
-        control={control}
-        rules={{
-          required: "Please confirm your password",
-          validate: (value) =>
-            value === control.getValues("password") || "Passwords do not match",
-        }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            placeholder="Confirm Password"
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry
-            style={styles.input}
-          />
-        )}
+      {errors.password && <Text style={styles.error}>*{errors.password}</Text>}
+
+      <TextInput
+        placeholder="Confirm Password"
+        value={formData.confirmPassword}
+        onChangeText={(value) => handleChange("confirmPassword", value)}
+        secureTextEntry
+        style={styles.input}
       />
       {errors.confirmPassword && (
-        <Text style={styles.error}>*{errors.confirmPassword.message}</Text>
+        <Text style={styles.error}>*{errors.confirmPassword}</Text>
       )}
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#274C77" />
+      ) : (
+        <Button title="Register" onPress={onSubmit} />
+      )}
     </View>
   );
 }
@@ -136,14 +148,7 @@ const styles = StyleSheet.create({
     justifyContent: "top",
     backgroundColor: "#fff",
     alignItems: "center",
-    padding:10
-   
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
+    padding: 10,
   },
   input: {
     width: "90%",
@@ -153,21 +158,8 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 5,
   },
-  button: {
-    backgroundColor: "#274C77",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
-    width: "full",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
   error: {
-    fontSize:10,
-   alignItems:"left",
+    fontSize: 10,
     color: "red",
     marginBottom: 5,
   },
