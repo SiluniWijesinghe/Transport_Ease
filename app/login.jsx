@@ -7,23 +7,29 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Alert
+  Alert,
 } from "react-native";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {  signInWithEmailAndPassword } from "firebase/auth";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { useDispatch } from "react-redux";
+
+import { setUser } from "../src/redux/userSlice";
+import { auth, db } from "../firebaseConfig";
 
 export default function Login() {
   const [errors, setErrors] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const auth = getAuth();
+  const dispatch = useDispatch();
+  const usersRef = collection(db, "users");
 
   const signIn = async () => {
     if (!email || !password) {
       setErrors("Both email and password are required.");
       return;
     }
-
+    const q = query(usersRef, where("email", "==", email));
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -31,11 +37,20 @@ export default function Login() {
         password
       );
       const user = userCredential.user;
-      router.push({ pathname: "/home" });
-      dispatch(setUser(formData));
-      Alert.alert("Success", "You have signed in successfully!", [
-        { text: "OK", onPress: () => router.push("/home") },
-      ]);
+
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        const userName = userData.firstName + " " + userData.lastName;
+
+        dispatch(setUser(userName) );
+
+        router.push("/home");
+        Alert.alert("Success", "You have signed in successfully!");
+      } else {
+        setErrors("No user found with this email.");
+      }
     } catch (error) {
       setErrors(error.message);
     }
@@ -47,6 +62,7 @@ export default function Login() {
       <TextInput
         placeholder="Email"
         value={email}
+        keyboardType="Email-address"
         onChangeText={setEmail}
         style={styles.input}
       />

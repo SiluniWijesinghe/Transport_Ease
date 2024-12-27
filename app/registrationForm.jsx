@@ -12,11 +12,13 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../src/redux/userSlice";
 import { useRouter } from "expo-router";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {db} from "../firebaseConfig"
+import { addDoc,collection } from "firebase/firestore";
 
 export default function RegistrationForm() {
   const [formData, setFormData] = useState({
-    FirstName: "",
-    LastName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -39,8 +41,8 @@ export default function RegistrationForm() {
     const newErrors = {};
 
     // Validation
-    if (!formData.FirstName) newErrors.FirstName = "First name is required";
-    if (!formData.LastName) newErrors.LastName = "Last name is required";
+    if (!formData.firstName) newErrors.firstName = "First name is required";
+    if (!formData.lastName) newErrors.lastName = "Last name is required";
     if (!formData.email) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -66,13 +68,20 @@ export default function RegistrationForm() {
       const { email, password } = formData;
 
       try {
+
+        const docRef = await addDoc(collection(db, "users"), {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email
+        });
+        console.log("Document written with ID: ", docRef.id);
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
           password
         );
-        const user = userCredential.user;
-        dispatch(setUser(formData));
+        const userName = formData.firstName+" "+ formData.lastName;
+        dispatch(setUser(userName));
         Alert.alert("Success", "You have registered successfully!", [
           { text: "OK", onPress: () => router.push("/login") },
         ]);
@@ -88,21 +97,21 @@ export default function RegistrationForm() {
     <View style={styles.container}>
       <TextInput
         placeholder="First Name"
-        value={formData.FirstName}
-        onChangeText={(value) => handleChange("FirstName", value)}
+        value={formData.firstName}
+        onChangeText={(value) => handleChange("firstName", value)}
         style={styles.input}
       />
-      {errors.FirstName && (
-        <Text style={styles.error}>*{errors.FirstName}</Text>
+      {errors.firstName && (
+        <Text style={styles.error}>*{errors.firstName}</Text>
       )}
 
       <TextInput
         placeholder="Last Name"
-        value={formData.LastName}
-        onChangeText={(value) => handleChange("LastName", value)}
+        value={formData.lastName}
+        onChangeText={(value) => handleChange("lastName", value)}
         style={styles.input}
       />
-      {errors.LastName && <Text style={styles.error}>*{errors.LastName}</Text>}
+      {errors.lastName && <Text style={styles.error}>*{errors.lastName}</Text>}
 
       <TextInput
         placeholder="Email"

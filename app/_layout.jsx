@@ -34,8 +34,7 @@ export default function RootLayout() {
         <Stack.Screen
           name="home"
           options={{
-            title: "Discover Places",
-            backgroundColor: "#fff",
+           headerShown:false,
           }}
         />
       </Stack>

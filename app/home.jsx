@@ -16,6 +16,7 @@ export default function Home() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const clickCount = useSelector((state) => state.counter.value);
+  const user=useSelector((state)=>state.user.user)
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -85,12 +86,14 @@ export default function Home() {
     <View style={styles.container}>
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
-      ) : (
+      ) : (<>
+        <Text>{user}</Text>
         <FlatList
           data={items}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
         />
+        </>
       )}
       <TouchableOpacity style={styles.floatingButton} onPress={() => {}}>
         <Text style={styles.floatingButtonText}>{clickCount}</Text>
