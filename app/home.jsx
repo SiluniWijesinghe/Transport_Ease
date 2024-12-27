@@ -77,7 +77,7 @@ export default function Home() {
       />
 
       <Text style={styles.status}>
-        Description: {item.description || "Unknown"}
+        Description: {item.description}
       </Text>
       <Text style={styles.status}>
         Activities: {item.activities?.[0].name || "Not Available"},{item.activities?.[1].name || "Not Available"}
