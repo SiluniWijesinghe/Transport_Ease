@@ -4,16 +4,18 @@ import {
   TextInput,
   Text,
   StyleSheet,
-  Button,
+  TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Image,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
 import { setUser } from "../src/redux/userSlice";
 import { useRouter } from "expo-router";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import {db} from "../firebaseConfig"
-import { addDoc,collection } from "firebase/firestore";
+import { db } from "../firebaseConfig";
+import { addDoc, collection } from "firebase/firestore";
 
 export default function RegistrationForm() {
   const [formData, setFormData] = useState({
@@ -68,33 +70,48 @@ export default function RegistrationForm() {
       const { email, password } = formData;
 
       try {
-
-        const docRef = await addDoc(collection(db, "users"), {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email
-        });
-        console.log("Document written with ID: ", docRef.id);
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
           password
         );
-        const userName = formData.firstName+" "+ formData.lastName;
+        const docRef = await addDoc(collection(db, "users"), {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+        });
+        console.log("Document written with ID: ", docRef.id);
+        const userName = formData.firstName + " " + formData.lastName;
         dispatch(setUser(userName));
         Alert.alert("Success", "You have registered successfully!", [
-          { text: "OK", onPress: () => router.push("/login") },
+          { text: "OK", onPress: () => router.push("/home") },
         ]);
       } catch (error) {
-        console.error("Registration error:", error.code, error.message);
+        const errorCode = error.code.split("/")[1];
+        const formattedError = errorCode.replace(/-/g, " ");
+        Alert.alert("Registration Error!", formattedError, [{ text: "OK" }]);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     }
   };
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Ionicons
+          name="arrow-back"
+          size={30}
+          color="black"
+          style={styles.backIcon}
+          onPress={() => router.back()}
+        />
+        <Text style={styles.heading}>Create Your Account</Text>
+      </View>
+      <Image
+        source={require("../assets/images/placeholder.png")}
+        style={styles.image}
+      />
       <TextInput
         placeholder="First Name"
         value={formData.firstName}
@@ -145,7 +162,13 @@ export default function RegistrationForm() {
       {loading ? (
         <ActivityIndicator size="large" color="#274C77" />
       ) : (
-        <Button title="Register" onPress={onSubmit} />
+        <TouchableOpacity
+          style={styles.button}
+          activeOpacity={0.9}
+          onPress={onSubmit}
+        >
+          <Text style={styles.buttonText}>Register</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -159,6 +182,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 10,
   },
+  header: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  backIcon: {
+    position: "absolute",
+    left: 10,
+    top: 5,
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#274C77",
+    marginLeft: 20,
+  },
+  image: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
   input: {
     width: "90%",
     borderColor: "#ccc",
@@ -167,8 +214,20 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 5,
   },
+  button: {
+    backgroundColor: "#274C77",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    width: "90%",
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   error: {
-    fontSize: 10,
+    fontSize: 13,
     color: "red",
     marginBottom: 5,
   },

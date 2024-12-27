@@ -7,31 +7,35 @@ import {
   TouchableOpacity,
   Image,
   Linking,
+  Alert,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "expo-router";
 import axios from "axios";
 import { increment } from "../src/redux/counterSlice";
+import { clearUser } from "../src/redux/userSlice";
 
 export default function Home() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const clickCount = useSelector((state) => state.counter.value);
-  const user=useSelector((state)=>state.user.user)
+  const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
+  const router = useRouter();
 
   useEffect(() => {
     // Fetch national park data from the NPS API
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          "https://developer.nps.gov/api/v1/places?limit=5&start=1&q=river&api_key=FevFNEaP2b3c9JsYyF7Xzsb8KbcYM8DbHeQO6Jbj",
-          {
+"https://developer.nps.gov/api/v1/parks?parkCode=&limit=8&start=30&api_key=FevFNEaP2b3c9JsYyF7Xzsb8KbcYM8DbHeQO6Jbj",          {
             headers: {
-              accept: "application/json", 
+              accept: "application/json",
             },
           }
         );
-        setItems(response.data.data); 
+        setItems(response.data.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -43,18 +47,28 @@ export default function Home() {
   }, []);
 
   const handleItemPress = () => {
-    dispatch(increment()); 
+    dispatch(increment());
   };
 
   const handleLinkPress = (url) => {
     Linking.openURL(url);
   };
 
+  const handleBackPress = () => {
+    Alert.alert("Log out", "Are you sure you want to log out?", [
+      { text: "Cancel" },
+      {
+        text: "Log Out",
+        onPress: () => {
+          dispatch(clearUser());
+          router.push("/login");
+        },
+      },
+    ]);
+  };
   const renderItem = ({ item }) => (
-    <View
-      style={styles.card}
-    >
-      <Text style={styles.title}>{item.relatedParks[0].fullName}</Text>
+    <View style={styles.card}>
+      <Text style={styles.title}>{item.fullName}</Text>
       <Image
         source={{
           uri: item.images?.[0]?.url || "https://via.placeholder.com/150",
@@ -63,10 +77,13 @@ export default function Home() {
       />
 
       <Text style={styles.status}>
-        Location: {item.relatedParks?.[0]?.states || "Unknown"}
+        Description: {item.description || "Unknown"}
       </Text>
       <Text style={styles.status}>
-        Longitude: {item.longitude || "Not Available"}
+        Activities: {item.activities?.[0].name || "Not Available"},{item.activities?.[1].name || "Not Available"}
+      </Text>
+      <Text style={styles.status}>
+        Contact No: {item.contacts?.phoneNumbers[0].phoneNumber || "Not Available"}
       </Text>
 
       <TouchableOpacity
@@ -84,15 +101,31 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Ionicons
+          name="arrow-back"
+          size={30}
+          color="black"
+          onPress={handleBackPress}
+        />
+        <View style={styles.greetingContainer}>
+          <Image
+            source={require("../assets/images/hello.png")}
+            style={styles.helloIcon}
+          />
+          <Text style={styles.greeting}>Hi {user || "there"}!</Text>
+        </View>
+      </View>
+
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
-      ) : (<>
-        <Text>{user}</Text>
-        <FlatList
-          data={items}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-        />
+      ) : (
+        <>
+          <FlatList
+            data={items}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+          />
         </>
       )}
       <TouchableOpacity style={styles.floatingButton} onPress={() => {}}>
@@ -108,11 +141,21 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#fff",
   },
-  heading: {
-    fontSize: 24,
+  header: {
+    width: "100%",
+    flexDirection: "row",  
+    justifyContent: "space-between",  
+    alignItems: "center",  
+    marginBottom: 20,
+  },
+  greetingContainer: {
+    flexDirection: "row",  
+    alignItems: "center",  
+  },
+  greeting: {
+    fontSize: 20,
     fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 20,
+    color: "black",
   },
   card: {
     backgroundColor: "#f9f9f9",
@@ -120,6 +163,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     elevation: 3,
+  },
+  helloIcon: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
   },
   image: {
     height: 150,
@@ -136,6 +184,7 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 14,
     color: "#555",
+    marginTop:5
   },
   moreInfoButton: {
     marginTop: 10,
@@ -154,7 +203,7 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
     alignItems: "center",
-    width:"60%"
+    width: "60%",
   },
   clickMeText: {
     color: "black",

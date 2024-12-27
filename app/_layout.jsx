@@ -10,34 +10,9 @@ export default function RootLayout() {
     <Provider store={store}>
       <Stack
         screenOptions={{
-          headerStyle: {
-            backgroundColor: "#E7ECEF",
-          },
-          headerTintColor: "black",
-          headerTitleStyle: {
-            fontWeight: "bold",
-          },
+          headerShown: false,
         }}
-      >
-        <Stack.Screen
-          name="index"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="registrationForm"
-          options={{
-            title: "User Registration",
-          }}
-        />
-        <Stack.Screen
-          name="home"
-          options={{
-           headerShown:false,
-          }}
-        />
-      </Stack>
+      />
     </Provider>
   );
 }

@@ -8,8 +8,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Image,
+  ActivityIndicator,
+  Pressable,
 } from "react-native";
-import {  signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { useDispatch } from "react-redux";
 
@@ -20,21 +23,33 @@ export default function Login() {
   const [errors, setErrors] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [credentials, setCredentials] = useState({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
   const usersRef = collection(db, "users");
+  const handleChange = (name, value) => {
+    setCredentials({
+      ...credentials,
+      [name]: value,
+    });
+  };
 
   const signIn = async () => {
-    if (!email || !password) {
+    if (!credentials.email || !credentials.password) {
       setErrors("Both email and password are required.");
       return;
     }
-    const q = query(usersRef, where("email", "==", email));
+    setLoading(true);
+    const q = query(usersRef, where("email", "==", credentials.email));
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        email,
-        password
+        credentials.email,
+        credentials.password
       );
       const user = userCredential.user;
 
@@ -44,7 +59,7 @@ export default function Login() {
         const userData = userDoc.data();
         const userName = userData.firstName + " " + userData.lastName;
 
-        dispatch(setUser(userName) );
+        dispatch(setUser(userName));
 
         router.push("/home");
         Alert.alert("Success", "You have signed in successfully!");
@@ -52,31 +67,48 @@ export default function Login() {
         setErrors("No user found with this email.");
       }
     } catch (error) {
-      setErrors(error.message);
+      const errorCode = error.code.split("/")[1];
+      const formattedError = errorCode.replace(/-/g, " ");
+      Alert.alert("Authentication Error!", formattedError, [{ text: "OK" }]);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.page}>
-      <Text style={styles.heading}>Welcome to Transport Ease!</Text>
+      <Image
+        source={require("../assets/images/map.png")} // Replace with your image file path
+        style={[styles.image, { tintColor: "#274C77" }]}
+      />
+      <Text style={styles.heading}>Welcome! Dive In and Get Started.</Text>
       <TextInput
         placeholder="Email"
-        value={email}
+        value={credentials.email}
         keyboardType="Email-address"
-        onChangeText={setEmail}
+        onChangeText={(value) => handleChange("email", value)}
         style={styles.input}
       />
       <TextInput
         placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
+        value={credentials.password}
+        onChangeText={(value) => handleChange("password", value)}
         secureTextEntry
         style={styles.input}
       />
       {errors && <Text style={styles.error}>{errors}</Text>}
-      <TouchableOpacity style={styles.button} onPress={signIn}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+
+      {loading ? (
+        <ActivityIndicator size="large" color="#274C77" />
+      ) : (
+        <TouchableOpacity
+          style={styles.button}
+          activeOpacity={0.9}
+          onPress={signIn}
+        >
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+      )}
       <TouchableOpacity
         onPress={() => {
           router.push({ pathname: "/registrationForm" });
@@ -100,7 +132,14 @@ const styles = StyleSheet.create({
   },
   heading: {
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 30,
+    marginBottom: 20,
+    color: "#274C77",
+  },
+  image: {
+    width: 200,
+    height: 150,
+    resizeMode: "contain",
     marginBottom: 20,
   },
   input: {
