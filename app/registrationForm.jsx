@@ -74,6 +74,9 @@ export default function RegistrationForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const onBlur=()=>{
+    validate();
+  }
   const onSubmit = async () => {
     if (validate()) {
       setLoading(true);
@@ -126,6 +129,7 @@ export default function RegistrationForm() {
         placeholder="First Name"
         value={formData.firstName}
         onChangeText={(value) => handleChange("firstName", value)}
+        onBlur={onBlur}
         style={styles.input}
       />
       {errors.firstName && (
@@ -136,6 +140,7 @@ export default function RegistrationForm() {
         placeholder="Last Name"
         value={formData.lastName}
         onChangeText={(value) => handleChange("lastName", value)}
+        onBlur={onBlur}
         style={styles.input}
       />
       {errors.lastName && <Text style={styles.error}>*{errors.lastName}</Text>}
@@ -144,6 +149,7 @@ export default function RegistrationForm() {
         placeholder="Email"
         value={formData.email}
         onChangeText={(value) => handleChange("email", value)}
+        onBlur={onBlur}
         keyboardType="email-address"
         style={styles.input}
       />
@@ -153,6 +159,7 @@ export default function RegistrationForm() {
         placeholder="Password"
         value={formData.password}
         onChangeText={(value) => handleChange("password", value)}
+        onBlur={onBlur}
         secureTextEntry
         style={styles.input}
       />
@@ -162,6 +169,7 @@ export default function RegistrationForm() {
         placeholder="Confirm Password"
         value={formData.confirmPassword}
         onChangeText={(value) => handleChange("confirmPassword", value)}
+        onBlur={onBlur}
         secureTextEntry
         style={styles.input}
       />
