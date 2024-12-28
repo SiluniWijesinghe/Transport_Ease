@@ -10,7 +10,6 @@ import {
   Alert,
   Image,
   ActivityIndicator,
-  Pressable,
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -78,14 +77,14 @@ export default function Login() {
   return (
     <View style={styles.page}>
       <Image
-        source={require("../assets/images/map.png")} // Replace with your image file path
+        source={require("../assets/images/map.png")}
         style={[styles.image, { tintColor: "#274C77" }]}
       />
       <Text style={styles.heading}>Welcome! Dive In and Get Started.</Text>
       <TextInput
         placeholder="Email"
         value={credentials.email}
-        keyboardType="Email-address"
+        keyboardType="email-address"
         onChangeText={(value) => handleChange("email", value)}
         style={styles.input}
       />
@@ -109,15 +108,19 @@ export default function Login() {
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       )}
-      <TouchableOpacity
-        onPress={() => {
-          router.push({ pathname: "/registrationForm" });
-        }}
-      >
+      <View style={styles.registerContainer}>
         <Text style={styles.registerText}>
-          Don't have an account? Register Here
+          Don't have an account?{" "}
+          <Text
+            style={styles.registerLink}
+            onPress={() => {
+              router.push("/registrationForm");
+            }}
+          >
+            Register Here
+          </Text>
         </Text>
-      </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -125,46 +128,60 @@ export default function Login() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f9f9f9",
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
   },
   heading: {
     textAlign: "center",
-    fontSize: 30,
+    fontSize: 26,
+    fontWeight: "bold",
     marginBottom: 20,
     color: "#274C77",
   },
   image: {
-    width: 200,
+    width: 180,
     height: 150,
     resizeMode: "contain",
     marginBottom: 20,
   },
   input: {
-    width: "80%",
+    width: "85%",
     borderColor: "#ccc",
     borderWidth: 1,
-    padding: 10,
+    padding: 12,
     margin: 10,
-    borderRadius: 5,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    elevation: 2,
   },
   button: {
     backgroundColor: "#274C77",
-    padding: 10,
-    borderRadius: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
     alignItems: "center",
-    width: "80%",
+    width: "85%",
+    elevation: 3,
+    marginTop: 10,
   },
   buttonText: {
-    color: "white",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
-  registerText: {
-    fontSize: 12,
+  registerContainer: {
     marginTop: 20,
+  },
+  registerText: {
+    fontSize: 14,
+    color: "#555",
+  },
+  registerLink: {
+    textDecorationLine: "underline",
+    color: "#274C77",
+    fontWeight: "bold",
   },
   error: {
     color: "red",

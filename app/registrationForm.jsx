@@ -43,8 +43,18 @@ export default function RegistrationForm() {
     const newErrors = {};
 
     // Validation
-    if (!formData.firstName) newErrors.firstName = "First name is required";
-    if (!formData.lastName) newErrors.lastName = "Last name is required";
+    if (!formData.firstName) {
+      newErrors.firstName = "First name is required";
+    } else if (!/^[A-Za-z]+$/.test(formData.firstName)) {
+      newErrors.firstName = "First name can only contain letters";
+    }
+
+    if (!formData.lastName) {
+      newErrors.lastName = "Last name is required";
+    } else if (!/^[A-Za-z]+$/.test(formData.lastName)) {
+      newErrors.lastName = "Last name can only contain letters";
+    }
+
     if (!formData.email) {
       newErrors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -110,7 +120,7 @@ export default function RegistrationForm() {
       </View>
       <Image
         source={require("../assets/images/placeholder.png")}
-        style={styles.image}
+        style={[styles.image, { tintColor: "#274C77" }]}
       />
       <TextInput
         placeholder="First Name"
@@ -201,25 +211,28 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   image: {
-    width: 150,
-    height: 150,
-    borderRadius: 10,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     marginBottom: 20,
   },
   input: {
     width: "90%",
     borderColor: "#ccc",
     borderWidth: 1,
-    padding: 10,
+    padding: 12,
     margin: 10,
-    borderRadius: 5,
+
+    borderRadius: 8,
+    backgroundColor: "#fff",
   },
   button: {
     backgroundColor: "#274C77",
-    padding: 10,
-    borderRadius: 5,
+    padding: 12,
+    borderRadius: 8,
     alignItems: "center",
     width: "90%",
+    marginTop: 20,
   },
   buttonText: {
     color: "white",
@@ -227,8 +240,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   error: {
-    fontSize: 13,
     color: "red",
-    marginBottom: 5,
+    fontSize: 12,
+    alignSelf: "flex-start",
+    marginLeft: "5%",
+    marginTop: -5,
   },
 });

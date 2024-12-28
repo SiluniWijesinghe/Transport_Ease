@@ -6,14 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Linking,
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
 import axios from "axios";
-import { increment } from "../src/redux/counterSlice";
+import { increment,clearCounter } from "../src/redux/counterSlice";
 import { clearUser } from "../src/redux/userSlice";
 
 export default function Home() {
@@ -25,15 +24,10 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch national park data from the NPS API
     const fetchData = async () => {
       try {
         const response = await axios.get(
-"https://developer.nps.gov/api/v1/parks?parkCode=&limit=8&start=30&api_key=FevFNEaP2b3c9JsYyF7Xzsb8KbcYM8DbHeQO6Jbj",          {
-            headers: {
-              accept: "application/json",
-            },
-          }
+          "https://developer.nps.gov/api/v1/parks?parkCode=&limit=8&start=30&api_key=FevFNEaP2b3c9JsYyF7Xzsb8KbcYM8DbHeQO6Jbj"
         );
         setItems(response.data.data);
         setLoading(false);
@@ -50,10 +44,6 @@ export default function Home() {
     dispatch(increment());
   };
 
-  const handleLinkPress = (url) => {
-    Linking.openURL(url);
-  };
-
   const handleBackPress = () => {
     Alert.alert("Log out", "Are you sure you want to log out?", [
       { text: "Cancel" },
@@ -61,41 +51,41 @@ export default function Home() {
         text: "Log Out",
         onPress: () => {
           dispatch(clearUser());
+          dispatch(clearCounter());
           router.push("/login");
         },
       },
     ]);
   };
+
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Text style={styles.title}>{item.fullName}</Text>
       <Image
         source={{
           uri: item.images?.[0]?.url || "https://via.placeholder.com/150",
         }}
         style={styles.image}
       />
-
-      <Text style={styles.status}>
-        Description: {item.description}
-      </Text>
-      <Text style={styles.status}>
-        Activities: {item.activities?.[0].name || "Not Available"},{item.activities?.[1].name || "Not Available"}
-      </Text>
-      <Text style={styles.status}>
-        Contact No: {item.contacts?.phoneNumbers[0].phoneNumber || "Not Available"}
-      </Text>
-
-      <TouchableOpacity
-        onPress={() => handleLinkPress(item.url)}
-        style={styles.moreInfoButton}
-      >
-        <Text style={styles.moreInfoText}>More Info</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.clickMeButton} onPress={handleItemPress}>
-        <Text style={styles.clickMeText}>Click Me</Text>
-      </TouchableOpacity>
+      <View style={styles.cardContent}>
+        <Text style={styles.title}>{item.fullName}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.activities}>
+          Activities:{" "}
+          {item.activities?.map((activity) => activity.name).join(", ") ||
+            "Not Available"}
+        </Text>
+        <Text style={styles.contact}>
+          Contact:{" "}
+          {item.contacts?.phoneNumbers[0]?.phoneNumber || "Not Available"}
+        </Text>
+        <TouchableOpacity
+          style={styles.clickMeButton}
+          onPress={handleItemPress}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.clickMeText}>Click Me</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -117,18 +107,19 @@ export default function Home() {
         </View>
       </View>
 
+      <Text style={styles.heading}>Parks You Can Visit</Text>
+
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
       ) : (
-        <>
-          <FlatList
-            data={items}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-          />
-        </>
+        <FlatList
+          data={items}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+        />
       )}
-      <TouchableOpacity style={styles.floatingButton} onPress={() => {}}>
+
+      <TouchableOpacity style={styles.floatingButton}>
         <Text style={styles.floatingButtonText}>{clickCount}</Text>
       </TouchableOpacity>
     </View>
@@ -143,82 +134,93 @@ const styles = StyleSheet.create({
   },
   header: {
     width: "100%",
-    flexDirection: "row",  
-    justifyContent: "space-between",  
-    alignItems: "center",  
-    marginBottom: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
   },
   greetingContainer: {
-    flexDirection: "row",  
-    alignItems: "center",  
+    flexDirection: "row",
+    alignItems: "center",
   },
   greeting: {
     fontSize: 20,
     fontWeight: "bold",
     color: "black",
   },
-  card: {
-    backgroundColor: "#f9f9f9",
-    marginBottom: 10,
-    borderRadius: 8,
-    padding: 10,
-    elevation: 3,
-  },
   helloIcon: {
     width: 40,
     height: 40,
     marginRight: 10,
   },
+  heading: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#333",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    marginBottom: 15,
+    overflow: "hidden",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+  },
+
   image: {
-    height: 150,
+    height: 180,
     width: "100%",
-    borderRadius: 8,
+  },
+  cardContent: {
+    padding: 15,
   },
   title: {
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: "bold",
-    marginVertical: 5,
+    fontFamily: "serif",
+    marginBottom: 8,
+    color: "#2C3E50",
     textAlign: "center",
-    color: "#FFF50",
   },
-  status: {
+  description: {
     fontSize: 14,
-    color: "#555",
-    marginTop:5
+    color: "black",
+    marginBottom: 10,
   },
-  moreInfoButton: {
-    marginTop: 10,
-    backgroundColor: "#007BFF",
-    padding: 5,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  moreInfoText: {
-    color: "#fff",
+  activities: {
     fontSize: 14,
+    color: "#1D3557",
+    marginBottom: 5,
+  },
+  contact: {
+    fontSize: 14,
+    color: "#1D3557",
+    marginBottom: 15,
   },
   clickMeButton: {
-    marginTop: 10,
-    backgroundColor: "#8B8C89",
-    padding: 5,
+    backgroundColor: "#1D3557",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 5,
     alignItems: "center",
-    width: "60%",
+    alignSelf: "center",
+    marginTop: 10,
   },
   clickMeText: {
-    color: "black",
-    fontSize: 14,
-  },
-  loadingText: {
-    fontSize: 18,
-    textAlign: "center",
-    marginTop: 20,
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
   floatingButton: {
     position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: "#007BFF",
+    backgroundColor: "#274C77",
     borderRadius: 50,
     width: 60,
     height: 60,
@@ -230,5 +232,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  loadingText: {
+    fontSize: 18,
+    textAlign: "center",
+    marginTop: 20,
   },
 });
